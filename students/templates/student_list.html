@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Records</title>
+     <!-- Include jQuery library for handling AJAX requests -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/student_list.css' %}">
+</head>
+<body>
+    <h1>Student Records</h1>
+    <!-- Table to display the list of students -->
+    <table id="studentsTable">
+        <tr>
+             <!-- Table headers -->
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Enrollment Date</th>
+            <th>Actions</th>
+        </tr>
+         <!-- Loop through the students and create a table row for each student -->
+        {% for student in students %}
+            <tr data-id="{{ student.id }}">
+                <td>{{ student.first_name }}</td>
+                <td>{{ student.last_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.enrollment_date }}</td>
+                <td>
+                     <!-- Buttons for editing and deleting student records -->
+                    <button class="edit" data-id="{{ student.id }}">Edit</button>
+                    <button class="delete" data-id="{{ student.id }}">Delete</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <!-- Buttons for creating a new student and logging out -->
+    <button class="create">Create</button>
+    <button class="logout">Log out</button>
+
+
+    <!-- jQuery script for handling button actions -->
+    <script>
+        $(document).ready(function() {
+              // Logout button click handler
+            $('.logout').click(function() {
+                $.ajax({
+                    url: '{% url "logout" %}',   // URL for the logout endpoint
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'   // Include CSRF token for security
+                    },
+                    success: function(response) {
+                        window.location.replace('{% url "student_list" %}');    // Redirect to the student list page after logout
+                    }
+                });
+            });
+              // Create button click handler
+            $('.create').click(function() {
+                window.location.replace('/students/create/')
+            });
+             // Edit button click handler
+            $('.edit').click(function() {
+                let studentId = $(this).data('id');
+                // Redirect to the update student page for the selected student
+                window.location.replace('/students/' + studentId + '/update/')
+            });
+             // Delete button click handler
+            $('.delete').click(function() {
+                let studentId = $(this).data('id');    // Get student ID from button data attribute
+                $.ajax({
+                    url: '/students/' + studentId + '/delete/',   // URL for the delete endpoint
+                    type: 'POST',
+                    data: {
+                        'csrf middleware token': '{{ csrf_token }}'  // Include CSRF token for security
+                    },
+                    success: function(response) {
+                        // Remove the student row from the table if deletion is successful
+                        if (response.deleted) {
+                            $('tr[data-id="' + studentId + '"]').remove();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred: ' + error);   // Display an error message if the request fails
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

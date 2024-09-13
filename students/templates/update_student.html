@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Student</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/update_student.css' %}">
+</head>
+<body>
+    <h1>Update Student</h1>
+    <form id="updateStudentForm">
+        {% csrf_token %}
+        <input type="hidden" id="student_id" name="student_id" value="{{ student.id }}">
+        <table>
+            <tr>
+                <td><label for="first_name">First Name:</label></td>
+                <td><input type="text" id="first_name" name="first_name" value="{{ student.first_name }}"><br></td>
+            </tr>
+            <tr>
+                <td><label for="last_name">Last Name:</label></td>
+                <td><input type="text" id="last_name" name="last_name" value="{{ student.last_name }}"><br></td>
+            </tr>
+            <tr>
+                <td><label for="email">Email:</label></td>
+                <td><input type="email" id="email" name="email" value="{{ student.email }}"><br></td>
+            </tr>
+            <tr>
+                <td><label for="enrollment_date">Enrollment Date:</label></td>
+                <td><input type="date" id="enrollment_date" name="enrollment_date" value="{{ student.enrollment_date }}"><br></td>
+            </tr>
+            <tr>
+                <td><button type="submit">Update</button></td>
+                <td><span id="message"></span></td>
+            </tr>
+        </table>
+        <br>
+        <a href="{% url 'student_list' %}">Students List</a>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            console.log('{{ student.enrollment_date }}');
+            $('#updateStudentForm').on('submit', function(event) {
+                event.preventDefault();
+                var studentId = $('#student_id').val();     // Get the student ID from the hidden input field
+
+                // Send an AJAX POST request to update the student record
+                $.ajax({
+                    url: '/students/' + studentId + '/update/',    // URL for the update endpoint
+                    type: 'POST',
+                    data: $(this).serialize(),       // Serialize form data for the request
+                    success: function(response) {
+                        $('#message').text('Student updated successfully');     // Display a success message if the request succeeds
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred: ' + error);  // Display an error message if the request fails
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

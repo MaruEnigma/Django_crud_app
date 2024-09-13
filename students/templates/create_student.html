@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Create Student</title>
+        <!-- Include jQuery library for handling AJAX requests -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {% load static %}       <!-- Load static files using Django template tag -->
+    <link rel="stylesheet" href="{% static 'css/create_student.css' %}">   <!-- Link to the CSS stylesheet for styling the form -->
+    </head>
+    <body>
+        <h1>Create a New Student</h1>
+        <form id="createStudentForm">      <!-- Form for creating a new student -->
+            {% csrf_token %}               <!-- Include CSRF token for security -->
+            <table>
+                <tr>
+                    <td><label for="first_name">First Name:</label></td>
+                    <td><input type="text" id="first_name" name="first_name" required><br></td>
+                </tr>
+                <tr>
+                    <td><label for="last_name">Last Name:</label></td>
+                    <td><input type="text" id="last_name" name="last_name" required><br><br></td>
+                </tr>
+                <tr>
+                    <td><label for="email">Email:</label></td>
+                    <td><input type="email" id="email" name="email" required><br></td>
+                </tr>
+                <tr>
+                    <td><label for="enrollment_date">Enrollment Date:</label></td>
+                    <td><input type="date" id="enrollment_date" name="enrollment_date" required><br></td>
+                </tr>
+                <tr>
+                    <td><button type="submit">Create Student</button></td>
+                    <td><span id="message"></span></td>
+                </tr>
+            </table>
+    
+            <br>
+            <!-- Link to go back to the student list -->
+            <a href="{% url 'student_list' %}">Students List</a>
+        </form>
+
+        <!-- jQuery script for handling form submission via AJAX -->
+        <script>
+            $(document).ready(function() {
+                $('#createStudentForm').on('submit', function(event) {
+                    event.preventDefault();     // Prevent the default form submission
+
+                    // Send an AJAX POST request to create a new student
+                    $.ajax({
+                        url: '{% url "create_student" %}',
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                             // Reset the form and display success message on successful response
+                            $('#createStudentForm')[0].reset();
+                            $('#message').text('Student created successfully');
+                        },
+                        error: function(xhr, status, error) {
+                            alert('An error occurred: ' + error);   // Display an error message if the request fails
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
+
